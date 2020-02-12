@@ -23,4 +23,3 @@ class BigCookie(pygame.sprite.Sprite):
 
     def transform_image(self, w):
         self.image = pygame.transform.scale(self.original_image, (w, w))
-
