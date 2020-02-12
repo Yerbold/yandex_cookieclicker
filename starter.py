@@ -1,19 +1,6 @@
 import pygame
 import os
-import sqlite3
-
-
-class CookieScanner:
-    def get_cookies_amount(self):
-        with sqlite3.connect('cookies.db') as con:
-            cur = con.cursor()
-            return cur.execute("""SELECT total_amount from cookies
-                       WHERE ROWID IN ( SELECT max( ROWID ) FROM cookies );""").fetchone()[0]
-
-    def set_new_record(self):
-        with sqlite3.connect('cookies.db') as con:
-            cur = con.cursor()
-            cur.execute("""INSERT INTO cookies (total_amount, cookies_per_click) VALUES (0, 1)""")
+from CookieScanner import CookieScanner
 
 
 def load_image(name, colorkey=None):
@@ -53,12 +40,12 @@ class BigCookie(pygame.sprite.Sprite):
 pygame.init()
 screen = pygame.display.set_mode((1100, 750), pygame.FULLSCREEN, pygame.RESIZABLE)
 buildings = pygame.Surface((600, 400))
-for i in range(10):
-    pygame.draw.rect(buildings, (i * 100 % 256, i * 10, i * 30 % 256), (0, i * 40, 600, 40))
 cookie_scan = CookieScanner()
 cookie_scan.set_new_record()
 font = pygame.font.SysFont('Calibri', 24, False, False)
+font_building = pygame.font.SysFont('Calibri', 36, False, False)
 count = cookie_scan.get_cookies_amount()
+buildings_button = font_building.render('Buildings', False, (0, 0, 0))
 cookie_amount = font.render('Amount: ' + str(count), False, (0, 0, 0))
 quit_text = font.render('Quit', False, (255, 0, 0))
 running = True
@@ -83,16 +70,13 @@ while running:
             big_cookie.change_pos(450, 40)
         if 1050 < mouse_pos[0] and mouse_pos[1] < 20 and any(pygame.mouse.get_pressed()):
             running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4:
-                print(10 * clock.tick() / 100)
-                buildings.scroll(0, int(20 * clock.tick() / 100))
+
 
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0, 0, 0), (1045, 0, 50, 25), 2)
     screen.blit(cookie_amount, (0, 0))
     screen.blit(quit_text, (1050, 0))
-    screen.blit(buildings, (0, 700))
+    screen.blit(buildings_button, (0, 700))
     all_sprites.draw(screen)
     clock.tick(fps)
     pygame.display.flip()
