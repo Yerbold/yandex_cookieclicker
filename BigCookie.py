@@ -1,12 +1,10 @@
 import pygame
-from starter import all_sprites
-from starter import load_image
 
 
 class BigCookie(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(all_sprites)
-        self.original_image = pygame.transform.scale(load_image('BigCookie.png', -1), (200, 200))
+    def __init__(self, group, image):
+        super().__init__(group)
+        self.original_image = pygame.transform.scale(image, (200, 200))
         self.image = self.original_image
         self.rect = self.image.get_rect()
         self.rect.x = 450
