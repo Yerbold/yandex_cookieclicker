@@ -12,9 +12,8 @@ class BigCookie(pygame.sprite.Sprite):
         self.rect.y = 40
         self.radius = self.rect.size[0] // 2
         self.center = (550, 140)
-        cookie_scan = CookieScanner()
         self.cookies_amount = 0
-        self.cookies_per_click = 4
+        self.cookies_per_click = 1
 
     def add_cookies(self, amount=-1):
         if amount == -1:
