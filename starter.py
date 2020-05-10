@@ -1,6 +1,7 @@
 import pygame
 import os
 import schedule
+import requests
 from BigCookie import BigCookie
 from CookieScanner import CookieScanner
 from Buildings import BuildingGroup, Cursors, Grandmas, Factories, Farms, Mines
@@ -64,7 +65,11 @@ click_power_text = font.render('Double Click Power', False, (0, 0, 0))
 cookie_amount = font.render('Amount: ' + str(big_cookie.cookies_amount), False, (0, 0, 0))
 quit_text = font.render('Quit', False, (255, 0, 0))
 store_text = bigger_font.render('Store', False, (0, 0, 0))
+player_input_box = pygame.Rect(100, 100, 140, 32)
+player_name = ''
 running = True
+active = False
+color = (200, 200, 200)
 fps = 60
 clock = pygame.time.Clock()
 cursors = Cursors(big_cookie)
@@ -84,6 +89,21 @@ while running:  # game loop
         if event.type == pygame.QUIT:
             running = False
             break
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if player_input_box.collidepoint(mouse_pos):
+                # Toggle the active variable.
+                active = not active
+            # Change the current color of the input box.
+            color = (255, 255, 255) if active else (200, 200, 200)
+        if event.type == pygame.KEYDOWN:
+            if active:
+                if event.key == pygame.K_RETURN:
+                    player_name = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    player_name = player_name[:-1]
+                else:
+                    player_name += event.unicode
         if big_cookie.detect_click(mouse_pos) and any(get_pressed()):  # condition for pressing big cookie
             big_cookie.transform_image(220)
             big_cookie.change_pos(440, 30)
@@ -117,18 +137,23 @@ while running:  # game loop
     pygame.draw.rect(screen, (0, 0, 0), (1050, 0, 50, 25), 2)
     pygame.draw.rect(screen, (255, 215, 0), (900, 140, 200, 60))
     pygame.draw.rect(screen, (0, 0, 0), (900, 140, 200, 60), 3)
+    pygame.draw.rect(screen, color, (100, 100, 140, 32), 3)
     cookies_amount = human_readable(int(big_cookie.cookies_amount))
     cookie_amount_text = font.render('Amount: ' + cookies_amount, False, (0, 0, 0))
     cursor_production = productions['cursor'] * cursors.n
     cookies_per_second = human_readable(building_group.total_production + cursor_production)
     cookies_ps_text = font.render('Cookies Per Second: ' + cookies_per_second, False, (0, 0, 0))
     click_power_cost_text = font.render(human_readable(double_click_power_cost), False, (0, 0, 0))
+    player_name_text = font.render('Player', False, (0, 0, 0))
+    player_name_input_text = font.render(player_name, False, (0, 0, 0))
     screen.blit(click_power_text, (903, 150))
     screen.blit(click_power_cost_text, (903, 175))
     screen.blit(cookie_amount_text, (0, 0))
     screen.blit(cookies_ps_text, (0, 30))
     screen.blit(quit_text, (1055, 0))
     screen.blit(store_text, (900, 100))
+    screen.blit(player_name_text, (103, 75))
+    screen.blit(player_name_input_text, (103, 103))
 
     for i in range(5):  # drawing a table and content of buildings
         pygame.draw.rect(buildings_surface, (191, 96, 0), (0, i * 100, 200, 100), 10)
@@ -148,3 +173,8 @@ while running:  # game loop
     clock.tick(fps)
     pygame.display.flip()
 
+# sending the round's record
+requests.post(url='http://127.0.0.1:5000/add_record', data={'player': player_name,
+                                                  'total amount': int(cookies_amount),
+                                                  'cookies per second': int(cookies_per_second),
+                                                  'cookies per click': int(cookies_per_click)})
