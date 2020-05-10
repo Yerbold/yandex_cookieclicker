@@ -174,7 +174,7 @@ while running:  # game loop
     pygame.display.flip()
 
 # sending the round's record
-requests.post(url='http://127.0.0.1:5000/add_record', data={'player': player_name,
+requests.post(url='https://cookie-clicker-records.herokuapp.com/add_record', data={'player': player_name,
                                                   'total amount': int(cookies_amount),
-                                                  'cookies per second': int(cookies_per_second),
+                                                  'cookies per second': int(float(cookies_per_second)),
                                                   'cookies per click': int(cookies_per_click)})
